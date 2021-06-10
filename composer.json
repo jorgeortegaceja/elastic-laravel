@@ -1,0 +1,11 @@
+{
+    "name": "jorgeortegaceja/elastic-laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "jorgeortegaceja",
+            "email": "33214280+jorgeortegaceja@users.noreply.github.com"
+        }
+    ],
+    "require": {}
+}
