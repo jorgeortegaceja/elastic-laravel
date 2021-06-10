@@ -1,5 +1,16 @@
 {
     "name": "jorgeortegaceja/elastic-laravel",
+    "description": "Esté paquete contiene todo lo necesario para poder integrar eleastic con laravel. Para asi poder explotar todas las caracteristicas de laravel.",
+    "keywords": [
+        "laravel",
+        "eloquent",
+        "elastic",
+        "elastic search",
+        "database",
+        "model",
+        "migrations"
+    ],
+    "homepage": "https://github.com/jorgeortegaceja/elastic-laravel",
     "license": "MIT",
     "authors": [
         {
@@ -7,5 +18,20 @@
             "email": "33214280+jorgeortegaceja@users.noreply.github.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": "^7.3|^8.0",
+        "laravel/framework": "^8.00",
+        "guzzlehttp/guzzle": "^7.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "orchestra/testbench": "^6.0",
+        "mockery/mockery": "^1.3.1",
+        "doctrine/dbal": "^2.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Elastic\\": "src/"
+        }
+    }
 }
