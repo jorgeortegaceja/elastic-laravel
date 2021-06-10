@@ -11,6 +11,7 @@ class ClassName extends ServiceProvider
         $this->app->resolving('db', function ($db) {
             $db->extend('elastic', function ($config, $name) {
                 $config['name'] = $name;
+                dd($name);
                 return new Connection($config);
             });
         });
