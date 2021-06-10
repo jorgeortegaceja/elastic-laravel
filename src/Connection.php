@@ -1,6 +1,6 @@
 <?php
 
-namespace Elastic;
+namespace\Elastic;
 
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Arr;

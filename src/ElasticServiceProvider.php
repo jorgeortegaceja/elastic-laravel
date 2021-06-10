@@ -1,5 +1,5 @@
 <?php
-namespace Elastic;
+namespace\Elastic;
 
 use Illuminate\Support\ServiceProvider;
 
