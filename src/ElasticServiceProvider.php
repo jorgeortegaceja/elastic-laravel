@@ -3,7 +3,7 @@ namespace Elastic;
 
 use Illuminate\Support\ServiceProvider;
 
-class ClassName extends ServiceProvider
+class ElasticServiceProvider extends ServiceProvider
 {
     public function register()
     {
