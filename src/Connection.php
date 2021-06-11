@@ -1,6 +1,6 @@
 <?php
 
-namespace\Elastic;
+namespace Elastic;
 
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Arr;
@@ -32,6 +32,7 @@ class Connection extends BaseConnection
         // Build the connection string
         $dsn = $this->getDsn($config);
 
+        dd($config);
         // You can pass options directly to the MongoDB constructor
         $options = Arr::get($config, 'options', []);
 

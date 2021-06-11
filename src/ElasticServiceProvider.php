@@ -1,5 +1,5 @@
 <?php
-namespace\Elastic;
+namespace Elastic;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -11,15 +11,14 @@ class ClassName extends ServiceProvider
         $this->app->resolving('db', function ($db) {
             $db->extend('elastic', function ($config, $name) {
                 $config['name'] = $name;
-                dd($name);
                 return new Connection($config);
             });
         });
 
         // Add connector for queue support.
         // $this->app->resolving('queue', function ($queue) {
-        //     $queue->addConnector('mongodb', function () {
-        //         return new MongoConnector($this->app['db']);
+        //     $queue->addConnector('elastic', function () {
+        //         return new ElasticConnector($this->app['db']);
         //     });
         // });
     }
