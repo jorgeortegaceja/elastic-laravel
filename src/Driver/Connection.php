@@ -1,11 +1,12 @@
 <?php
 
-namespace Elastic;
+namespace Elastic\Driver;
 
+use Elastic\Driver\Client;
+use Elastic\Query\Processor;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use MongoDB\Client;
 
 class Connection extends BaseConnection
 {
@@ -37,18 +38,19 @@ class Connection extends BaseConnection
 
         // Create the connection
         $this->connection = $this->createConnection($dsn, $config, $options);
-        dd($dsn);
+
         // Get default database name
         $default_db = $this->getDefaultDatabaseName($dsn, $config);
 
-        // Select database
-        $this->db = $this->connection->selectDatabase($default_db);
+        // Select index
+        $this->db = $this->connection->selectIndex($default_db);
 
         $this->useDefaultPostProcessor();
 
         $this->useDefaultSchemaGrammar();
 
         $this->useDefaultQueryGrammar();
+
     }
 
     /**
@@ -93,10 +95,10 @@ class Connection extends BaseConnection
     }
 
     /**
-     * Get the MongoDB database object.
-     * @return \MongoDB\Database
+     * Get the Elastic database object.
+     * @return \ElasticDB\Database
      */
-    public function getMongoDB()
+    public function getElasticDB()
     {
         return $this->db;
     }
@@ -128,7 +130,7 @@ class Connection extends BaseConnection
     protected function getDefaultDatabaseName($dsn, $config)
     {
         if (empty($config['database'])) {
-            if (preg_match('/^mongodb(?:[+]srv)?:\\/\\/.+\\/([^?&]+)/s', $dsn, $matches)) {
+            if (preg_match('/^elastic(?:[+]srv)?:\\/\\/.+\\/([^?&]+)/s', $dsn, $matches)) {
                 $config['database'] = $matches[1];
             } else {
                 throw new InvalidArgumentException('Database is not properly configured.');
@@ -155,14 +157,14 @@ class Connection extends BaseConnection
         }
 
         // Check if the credentials are not already set in the options
-        if (!isset($options['username']) && !empty($config['username'])) {
-            $options['username'] = $config['username'];
+        if (!isset($credentials['username']) && !empty($config['username'])) {
+            $credentials['username'] = $config['username'];
         }
-        if (!isset($options['password']) && !empty($config['password'])) {
-            $options['password'] = $config['password'];
+        if (!isset($credentials['password']) && !empty($config['password'])) {
+            $credentials['password'] = $config['password'];
         }
-        dd($dsn, $options, $driverOptions);
-        return new Client($dsn, $options, $driverOptions);
+
+        return new Client($dsn, $credentials, $driverOptions);
     }
 
     /**
@@ -202,7 +204,8 @@ class Connection extends BaseConnection
     {
         // Treat host option as array of hosts
         $hosts = is_array($config['host']) ? $config['host'] : [$config['host']];
-        $ssl = is_array($config['ssl']) ? $config['ssl'] : [$config['ssl']];
+        $ssl = isset($config['ssl']) ? $config['ssl'] : true;
+
         foreach ($hosts as &$host) {
             // Check if we need to add a port to the host
             if (strpos($host, ':') === false && !empty($config['port'])) {
@@ -210,12 +213,11 @@ class Connection extends BaseConnection
             }
         }
 
-        // Check if we want to authenticate against a specific database.
-        $auth_database = isset($config['options']) && !empty($config['options']['database']) ? $config['options']['database'] : null;
+        $host = implode(',', $hosts);
 
-        $host = implode(',', $hosts) . ($auth_database ? '/' . $auth_database : '');
-
-        return $ssl ? 'https://' . $host : 'http://' . $host;
+        return $ssl
+        ? 'https://' . $host
+        : 'http://' . $host;
     }
 
     /**
@@ -243,7 +245,7 @@ class Connection extends BaseConnection
      */
     public function getDriverName()
     {
-        return 'mongodb';
+        return 'elastic';
     }
 
     /**
@@ -251,7 +253,7 @@ class Connection extends BaseConnection
      */
     protected function getDefaultPostProcessor()
     {
-        return new Query\Processor();
+        return new Processor();
     }
 
     /**
@@ -259,7 +261,7 @@ class Connection extends BaseConnection
      */
     protected function getDefaultQueryGrammar()
     {
-        return new Query\Grammar();
+        return new \Elastic\Query\Grammar();
     }
 
     /**
@@ -267,14 +269,14 @@ class Connection extends BaseConnection
      */
     protected function getDefaultSchemaGrammar()
     {
-        return new Schema\Grammar();
+        return new \Elastic\Schema\Grammar();
     }
 
     /**
      * Set database.
-     * @param \MongoDB\Database $db
+     * @param \Elastic\Database $db
      */
-    public function setDatabase(\MongoDB\Database $db)
+    public function setDatabase(\Elastic\Database $db)
     {
         $this->db = $db;
     }

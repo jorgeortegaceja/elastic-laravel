@@ -1,6 +1,7 @@
 <?php
 namespace Elastic;
 
+use Elastic\Driver\Connection;
 use Illuminate\Support\ServiceProvider;
 
 class ElasticServiceProvider extends ServiceProvider
@@ -11,7 +12,7 @@ class ElasticServiceProvider extends ServiceProvider
         $this->app->resolving('db', function ($db) {
             $db->extend('elastic', function ($config, $name) {
                 $config['name'] = $name;
-                return new Elastic\Driver\Connection($config);
+                return new Connection($config);
             });
         });
 
