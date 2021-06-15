@@ -16,6 +16,11 @@ class ElasticServiceProvider extends ServiceProvider
             });
         });
 
+        $this->app->bind('Elastic', function ($app) {
+            $config['name'] = \config('database')['connections']['elastic'];
+            return new Connection($config);
+        });
+
         // Add connector for queue support.
         // $this->app->resolving('queue', function ($queue) {
         //     $queue->addConnector('elastic', function () {
