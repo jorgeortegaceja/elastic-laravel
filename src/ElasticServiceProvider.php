@@ -11,7 +11,7 @@ class ElasticServiceProvider extends ServiceProvider
         $this->app->resolving('db', function ($db) {
             $db->extend('elastic', function ($config, $name) {
                 $config['name'] = $name;
-                return new Connection($config);
+                return new Elastic\Driver\Connection($config);
             });
         });
 

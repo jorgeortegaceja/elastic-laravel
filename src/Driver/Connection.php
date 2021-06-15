@@ -32,13 +32,12 @@ class Connection extends BaseConnection
         // Build the connection string
         $dsn = $this->getDsn($config);
 
-        dd($config);
         // You can pass options directly to the MongoDB constructor
         $options = Arr::get($config, 'options', []);
 
         // Create the connection
         $this->connection = $this->createConnection($dsn, $config, $options);
-
+        dd($dsn);
         // Get default database name
         $default_db = $this->getDefaultDatabaseName($dsn, $config);
 
@@ -162,7 +161,7 @@ class Connection extends BaseConnection
         if (!isset($options['password']) && !empty($config['password'])) {
             $options['password'] = $config['password'];
         }
-
+        dd($dsn, $options, $driverOptions);
         return new Client($dsn, $options, $driverOptions);
     }
 
@@ -203,7 +202,7 @@ class Connection extends BaseConnection
     {
         // Treat host option as array of hosts
         $hosts = is_array($config['host']) ? $config['host'] : [$config['host']];
-
+        $ssl = is_array($config['ssl']) ? $config['ssl'] : [$config['ssl']];
         foreach ($hosts as &$host) {
             // Check if we need to add a port to the host
             if (strpos($host, ':') === false && !empty($config['port'])) {
@@ -214,7 +213,9 @@ class Connection extends BaseConnection
         // Check if we want to authenticate against a specific database.
         $auth_database = isset($config['options']) && !empty($config['options']['database']) ? $config['options']['database'] : null;
 
-        return 'mongodb://' . implode(',', $hosts) . ($auth_database ? '/' . $auth_database : '');
+        $host = implode(',', $hosts) . ($auth_database ? '/' . $auth_database : '');
+
+        return $ssl ? 'https://' . $host : 'http://' . $host;
     }
 
     /**
