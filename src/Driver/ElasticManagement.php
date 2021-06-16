@@ -21,8 +21,8 @@ class ElasticManagement
     {
         try {
             $response = Http::withBasicAuth($this->credentials['username'], $this->credentials['password'])
-            ->{$query->method}("{$this->dsn}/$query->entity");
-        } catch (\Throwable$th) {
+                ->{$query->method}("{$this->dsn}/$query->entity");
+        } catch (\Throwable $th) {
             //throw $th;
         }
     }
