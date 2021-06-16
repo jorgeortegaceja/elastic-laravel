@@ -2,17 +2,27 @@
 
 namespace Elastic\Driver;
 
-use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\Http;
 
-class ElasticManagement 
+class ElasticManagement
 {
-    
+    private $dsn;
+    private $credentials;
+    private $driverOptions;
+
+    public function __construct(string $dsn, array $credentials, array $driverOptions = [])
+    {
+        $this->dsn = $dsn;
+        $this->credentials = $credentials;
+        $this->driverOptions = $driverOptions;
+    }
+
     public function execute($options, $query)
     {
         try {
-            $response = Http::withBasicAuth('taylor@laravel.com', 'secret')->${$query->method}->get();
-        } catch (\Throwable $th) {
+            $response = Http::withBasicAuth($this->credentials['username'], $this->credentials['password'])
+            ->{$query->method}("{$this->dsn}/$query->entity");
+        } catch (\Throwable$th) {
             //throw $th;
         }
     }
