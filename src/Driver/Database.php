@@ -30,6 +30,7 @@ class Database extends ElasticManagement
         return $this;
     }
 
+    // hola mudno
     public function selectCollection($name)
     {
         return $name;
