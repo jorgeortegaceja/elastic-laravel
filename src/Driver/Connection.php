@@ -3,6 +3,7 @@
 namespace Elastic\Driver;
 
 use Elastic\Driver\Client;
+use Elastic\Driver\ElasticManagement;
 use Elastic\Query\Builder;
 use Elastic\Query\Processor;
 use Illuminate\Database\Connection as BaseConnection;
@@ -61,6 +62,7 @@ class Connection extends BaseConnection
      */
     public function collection($collection)
     {
+
         $query = new Builder($this, $this->getPostProcessor());
         return $query->from($collection);
     }
@@ -163,11 +165,12 @@ class Connection extends BaseConnection
         if (!isset($credentials['password']) && !empty($config['password'])) {
             $credentials['password'] = $config['password'];
         }
-
-        return new Client($dsn, $credentials, $driverOptions);
+        dd($dsn, $credentials, $driverOptions);
+        return new ElasticManagement($dsn, $credentials, $driverOptions);
     }
 
     /**
+     *
      * @inheritdoc
      */
     public function disconnect()

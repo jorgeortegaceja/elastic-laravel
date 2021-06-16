@@ -37,10 +37,11 @@ class Collection
     public function __call($method, $parameters)
     {
 
-        dd($method, $parameters, $this->collection);
         $start = microtime(true);
-        $result = call_user_func_array([$this->collection, $method], $parameters);
+        dd($method);
+        $result = call_user_func_array([$this, $method], $parameters);
 
+        dd($result);
         // Once we have run the query we will calculate the time that it took to run and
         // then log the query, bindings, and execution time so we will report them on
         // the event that the developer needs them. We'll log time in milliseconds.
