@@ -2,18 +2,19 @@
 
 namespace Elastic\Driver;
 
-use GuzzleHttp\Client;
+use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Support\Facades\Http;
 
-class ElasticManagement extends Client
+class ElasticManagement 
 {
-    public function prepare()
+    
+    public function execute($options, $query)
     {
-
-    }
-
-    public function execute()
-    {
-
+        try {
+            $response = Http::withBasicAuth('taylor@laravel.com', 'secret')->${$query->method}->get();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 
 }

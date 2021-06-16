@@ -4,10 +4,11 @@ namespace Elastic\Driver;
 
 class Database extends ElasticManagement
 {
+    protected $options;
 
     public function __construct($manager, $index, $options)
     {
-
+        $this->options = $options;   
     }
 
     public function connetion()
@@ -28,6 +29,11 @@ class Database extends ElasticManagement
     public function getPDO()
     {
         return $this;
+    }
+
+    public function find($query)
+    {
+        return $this->execute($query, $this->options);
     }
 
     // hola mudno
