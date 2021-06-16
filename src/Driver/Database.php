@@ -2,7 +2,7 @@
 
 namespace Elastic\Driver;
 
-class Database
+class Database extends ElasticManagement
 {
 
     public function __construct($manager, $index, $options)
@@ -30,4 +30,8 @@ class Database
         return $this;
     }
 
+    public function selectCollection($name)
+    {
+        return $name;
+    }
 }

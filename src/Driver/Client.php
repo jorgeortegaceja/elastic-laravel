@@ -55,4 +55,5 @@ class Client
 
         return new Database($this->manager, $default_index, []);
     }
+
 }

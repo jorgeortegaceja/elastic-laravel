@@ -3,6 +3,7 @@
 namespace Elastic\Driver;
 
 use Elastic\Driver\Client;
+use Elastic\Query\Builder;
 use Elastic\Query\Processor;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Arr;
@@ -60,8 +61,7 @@ class Connection extends BaseConnection
      */
     public function collection($collection)
     {
-        $query = new Query\Builder($this, $this->getPostProcessor());
-
+        $query = new Builder($this, $this->getPostProcessor());
         return $query->from($collection);
     }
 
@@ -83,7 +83,7 @@ class Connection extends BaseConnection
      */
     public function getCollection($name)
     {
-        return new Collection($this, $this->db->selectCollection($name));
+        return new Collection($this, $name);
     }
 
     /**
