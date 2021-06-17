@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Http;
 
 class ElasticManagement
 {
-    private $dsn;
-    private $credentials;
-    private $driverOptions;
+    protected $dsn;
+    protected $credentials;
+    protected $driverOptions;
 
     public function __construct(string $dsn, array $credentials, array $driverOptions = [])
     {

@@ -9,6 +9,9 @@ use InvalidArgumentException;
 
 class Connection extends BaseConnection
 {
+
+    use MethodsTry;
+
     protected $config;
     protected $db;
     /**
@@ -164,6 +167,11 @@ class Connection extends BaseConnection
     public function getElapsedTime($start)
     {
         return parent::getElapsedTime($start);
+    }
+
+    protected function getPdoForSelect($useReadPdo = true)
+    {
+        return $this->connection;
     }
 
     /**
