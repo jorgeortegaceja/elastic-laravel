@@ -2,20 +2,18 @@
 
 namespace Elastic\Driver;
 
-use Elastic\Driver\Client;
-use Elastic\Query\Processor;
+use Elastic\Driver\ElasticManagement;
 use Illuminate\Database\Connection as BaseConnection;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
 class Connection extends BaseConnection
 {
-    /**
-     * The MongoDB database handler.
-     * @var \MongoDB\Database
-     */
-    protected $db;
 
+    use MethodsTrait;
+
+    protected $config;
+    protected $db;
     /**
      * The MongoDB connection handler.
      * @var \MongoDB\Client
@@ -31,19 +29,17 @@ class Connection extends BaseConnection
         $this->config = $config;
 
         // Build the connection string
-        $dsn = $this->getDsn($config);
+        $dns = $this->getDns($config);
 
         // You can pass options directly to the MongoDB constructor
         $options = Arr::get($config, 'options', []);
 
         // Create the connection
-        $this->connection = $this->createConnection($dsn, $config, $options);
+        $this->connection = $this->createConnection($dns, $config, $options);
 
+        $this->db = $this;
         // Get default database name
-        $default_db = $this->getDefaultDatabaseName($dsn, $config);
-
-        // Select index
-        $this->db = $this->connection->selectIndex($default_db);
+        $default_db = $this->getDefaultDatabaseName($dns, $config);
 
         $this->useDefaultPostProcessor();
 
@@ -54,100 +50,33 @@ class Connection extends BaseConnection
     }
 
     /**
-     * Begin a fluent query against a database collection.
-     * @param string $collection
-     * @return Query\Builder
-     */
-    public function collection($collection)
-    {
-        $query = new Query\Builder($this, $this->getPostProcessor());
-
-        return $query->from($collection);
-    }
-
-    /**
-     * Begin a fluent query against a database collection.
-     * @param string $table
-     * @param string|null $as
-     * @return Query\Builder
-     */
-    public function table($table, $as = null)
-    {
-        return $this->collection($table);
-    }
-
-    /**
-     * Get a MongoDB collection.
-     * @param string $name
-     * @return Collection
-     */
-    public function getCollection($name)
-    {
-        return new Collection($this, $this->db->selectCollection($name));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSchemaBuilder()
-    {
-        return new Schema\Builder($this);
-    }
-
-    /**
-     * Get the Elastic database object.
-     * @return \ElasticDB\Database
-     */
-    public function getElasticDB()
-    {
-        return $this->db;
-    }
-
-    /**
-     * return MongoDB object.
-     * @return \MongoDB\Client
-     */
-    public function getMongoClient()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDatabaseName()
-    {
-        return $this->getMongoDB()->getDatabaseName();
-    }
-
-    /**
-     * Get the name of the default database based on db config or try to detect it from dsn.
-     * @param string $dsn
+     * Get the name of the default database based on db config or try to detect it from Dns.
+     * @param string $Dns
      * @param array $config
      * @return string
      * @throws InvalidArgumentException
      */
-    protected function getDefaultDatabaseName($dsn, $config)
+    protected function getDefaultDatabaseName($dns, $config)
     {
         if (empty($config['database'])) {
-            if (preg_match('/^elastic(?:[+]srv)?:\\/\\/.+\\/([^?&]+)/s', $dsn, $matches)) {
+            if (preg_match('/^elastic(?:[+]srv)?:\\/\\/.+\\/([^?&]+)/s', $dns, $matches)) {
                 $config['database'] = $matches[1];
             } else {
                 throw new InvalidArgumentException('Database is not properly configured.');
             }
         }
-
+        $this->config["dns"] = $config['database'];
         return $config['database'];
     }
 
     /**
      * Create a new MongoDB connection.
-     * @param string $dsn
+     * @param string $Dns
      * @param array $config
      * @param array $options
      * @return \MongoDB\Client
      */
-    protected function createConnection($dsn, array $config, array $options)
+    protected function createConnection($dns, array $config, array $options)
     {
         // By default driver options is an empty array.
         $driverOptions = [];
@@ -163,11 +92,11 @@ class Connection extends BaseConnection
         if (!isset($credentials['password']) && !empty($config['password'])) {
             $credentials['password'] = $config['password'];
         }
-
-        return new Client($dsn, $credentials, $driverOptions);
+        return new ElasticManagement($dns, $credentials, $driverOptions);
     }
 
     /**
+     *
      * @inheritdoc
      */
     public function disconnect()
@@ -176,31 +105,31 @@ class Connection extends BaseConnection
     }
 
     /**
-     * Determine if the given configuration array has a dsn string.
+     * Determine if the given configuration array has a Dns string.
      * @param array $config
      * @return bool
      */
-    protected function hasDsnString(array $config)
+    protected function hasDnsString(array $config)
     {
-        return isset($config['dsn']) && !empty($config['dsn']);
+        return isset($config['host']) && !empty($config['host']);
     }
 
     /**
-     * Get the DSN string form configuration.
+     * Get the Dns string form configuration.
      * @param array $config
      * @return string
      */
-    protected function getDsnString(array $config)
+    protected function getDnsString(array $config)
     {
-        return $config['dsn'];
+        return $config['host'];
     }
 
     /**
-     * Get the DSN string for a host / port configuration.
+     * Get the Dns string for a host / port configuration.
      * @param array $config
      * @return string
      */
-    protected function getHostDsn(array $config)
+    protected function getHostDns(array $config)
     {
         // Treat host option as array of hosts
         $hosts = is_array($config['host']) ? $config['host'] : [$config['host']];
@@ -221,15 +150,15 @@ class Connection extends BaseConnection
     }
 
     /**
-     * Create a DSN string from a configuration.
+     * Create a Dns string from a configuration.
      * @param array $config
      * @return string
      */
-    protected function getDsn(array $config)
+    protected function getDns(array $config)
     {
-        return $this->hasDsnString($config)
-        ? $this->getDsnString($config)
-        : $this->getHostDsn($config);
+        return $this->hasDnsString($config)
+        ? $this->getDnsString($config)
+        : $this->getHostDns($config);
     }
 
     /**
@@ -238,6 +167,11 @@ class Connection extends BaseConnection
     public function getElapsedTime($start)
     {
         return parent::getElapsedTime($start);
+    }
+
+    protected function getPdoForSelect($useReadPdo = true)
+    {
+        return $this->connection;
     }
 
     /**
@@ -253,7 +187,7 @@ class Connection extends BaseConnection
      */
     protected function getDefaultPostProcessor()
     {
-        return new Processor();
+        return new \Elastic\Query\Processor();
     }
 
     /**
@@ -273,15 +207,6 @@ class Connection extends BaseConnection
     }
 
     /**
-     * Set database.
-     * @param \Elastic\Database $db
-     */
-    public function setDatabase(\Elastic\Database $db)
-    {
-        $this->db = $db;
-    }
-
-    /**
      * Dynamically pass methods to the connection.
      * @param string $method
      * @param array $parameters
@@ -289,6 +214,8 @@ class Connection extends BaseConnection
      */
     public function __call($method, $parameters)
     {
+
+        Log::chanel('dev')->info($method, $parameters);
         return call_user_func_array([$this->db, $method], $parameters);
     }
 }
