@@ -10,7 +10,7 @@ use InvalidArgumentException;
 class Connection extends BaseConnection
 {
 
-    use MethodsTry;
+    use MethodsTrait;
 
     protected $config;
     protected $db;
@@ -214,6 +214,8 @@ class Connection extends BaseConnection
      */
     public function __call($method, $parameters)
     {
+
+        Log::chanel('dev')->info($method, $parameters);
         return call_user_func_array([$this->db, $method], $parameters);
     }
 }

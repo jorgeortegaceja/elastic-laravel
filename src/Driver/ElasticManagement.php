@@ -17,11 +17,18 @@ class ElasticManagement
         $this->driverOptions = $driverOptions;
     }
 
-    public function execute($options, $query)
+    public function execute($query, $options = [])
     {
+
         try {
-            $response = Http::withBasicAuth($this->credentials['username'], $this->credentials['password'])
-                ->{$query->method}("{$this->dsn}/$query->entity");
+
+            $response =
+            Http::withBasicAuth(
+                $this->credentials['username'], $this->credentials['password']
+            )
+                ->{strtolower($query->method)}("https://{$this->dsn}/$query->entity");
+
+            return $response->body();
         } catch (\Throwable $th) {
             //throw $th;
         }
